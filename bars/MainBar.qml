@@ -17,12 +17,7 @@ PanelWindow {
         right: true
     }
 
-    implicitHeight: Theme.barHeight
-    function f() {
-        console.debug(Colors.resources)
-        console.debug(Colors.fallback)
-        Qt.quit()
-    }
+    implicitHeight: 28
     color: Colors.background
 
     // polybar reserves space for the bar by default; ExclusionMode.Auto derives

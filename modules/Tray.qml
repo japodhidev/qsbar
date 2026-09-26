@@ -39,7 +39,7 @@ RowLayout {
                     return;
                 }
                 const anchor = trayItem.mapToItem(null, trayItem.width / 2, 0);
-                trayItem.modelData.display(root.anchorWindow, anchor.x, -90);
+                trayItem.modelData.display(root.anchorWindow, anchor.x, -165);
             }
 
             IconImage {

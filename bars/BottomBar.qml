@@ -17,7 +17,7 @@ PanelWindow {
         right: true
     }
 
-    implicitHeight: Theme.barHeight
+    implicitHeight: 28
     color: Colors.background
     exclusionMode: ExclusionMode.Auto
 

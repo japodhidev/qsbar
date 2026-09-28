@@ -5,8 +5,12 @@ import Quickshell
 import Quickshell.Io
 
 // Equivalent of polybar's ${xrdb:colorN}. Quickshell has no xrdb reader, so we
-// shell out to `xrdb -query` once at startup and parse colorN entries out of it.
+// shell out to `xrdb -query` at startup and parse colorN entries out of it.
 // The fallback palette is used until that returns, and for any missing entry.
+//
+// The palette is re-read on demand, replacing polybar's `pkill -USR1 polybar`:
+//   qs -c <config-name> ipc call colors reload
+// Every colorN binding is reactive, so the bars repaint without restarting.
 Singleton {
     id: root
 
@@ -47,9 +51,37 @@ Singleton {
     readonly property color separator: color6   // separator-foreground
     readonly property color dimmed: "#555555"
 
+    // Re-run `xrdb -query`. If a query is already in flight (e.g. two reloads
+    // arrive back to back), queue exactly one more so the newest palette wins.
+    property bool refreshQueued: false
+
+    function refresh() {
+        if (xrdb.running) {
+            root.refreshQueued = true;
+            return;
+        }
+        xrdb.running = true;
+    }
+
+    IpcHandler {
+        target: "colors"
+
+        function reload(): void {
+            root.refresh();
+        }
+    }
+
     Process {
+        id: xrdb
         running: true
         command: ["xrdb", "-query"]
+
+        onExited: {
+            if (root.refreshQueued) {
+                root.refreshQueued = false;
+                xrdb.running = true;
+            }
+        }
 
         stdout: StdioCollector {
             id: xrdbOut
